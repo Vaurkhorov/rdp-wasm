@@ -1,0 +1,13 @@
+[package]
+name = "rdp"
+version = "0.1.0"
+edition = "2021"
+authors = ["Saurav S. Samantaray <sssamantaray77@gmail.com>"]
+description = "wasm library that implements the Ramer-Douglas-Peucker algorithm"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+js-sys = "0.3.70"
+wasm-bindgen = "0.2.93"
