@@ -1,6 +1,6 @@
 [package]
 name = "rdp"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Saurav S. Samantaray <sssamantaray77@gmail.com>"]
 description = "wasm library that implements the Ramer-Douglas-Peucker algorithm"
