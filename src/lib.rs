@@ -283,7 +283,7 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err(),
-            "Binary Search limit reached.".to_string()
+            "Binary Search limit reached. Count: 2 Middle: 0.7071067811865475".to_string()
         );
     }
 
