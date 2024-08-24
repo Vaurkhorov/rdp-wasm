@@ -37,9 +37,12 @@ impl Curve {
 
     pub fn get_csv(&self) -> JsString {
         let mut output = String::from("timestamps, x, y\n");
-        
+
         for i in 0..self.x.len() {
-            output.push_str(&format!("{}, {}, {}\n", self.timestamps[i], self.x[i], self.y[i]))
+            output.push_str(&format!(
+                "{}, {}, {}\n",
+                self.timestamps[i], self.x[i], self.y[i]
+            ))
         }
 
         JsString::from(output)
@@ -137,7 +140,11 @@ pub fn decimate_to_count(
     let mut lower_limit = 0.0;
     let mut upper_limit = max_distance;
     let mut middle: f64;
-    let mut curve= Curve { timestamps: Vec::new(), x: Vec::new(), y: Vec::new() };
+    let mut curve = Curve {
+        timestamps: Vec::new(),
+        x: Vec::new(),
+        y: Vec::new(),
+    };
 
     // The loop may hit the limit if two values are somehow removed at the same(or almost the same) tolerance value.
     for _ in 0..MAX_BINARY_SEARCH_ITERATIONS {
@@ -151,7 +158,11 @@ pub fn decimate_to_count(
         }
     }
 
-    Err(format!("Binary Search limit reached. Count: {} Middle: {}", curve.timestamps.len(), (upper_limit + lower_limit) / 2.0))
+    Err(format!(
+        "Binary Search limit reached. Count: {} Middle: {}",
+        curve.timestamps.len(),
+        (upper_limit + lower_limit) / 2.0
+    ))
 }
 
 /// perpendicular distance between a point and a line defined by two points
