@@ -1,4 +1,4 @@
-use js_sys::Float64Array;
+use js_sys::{Float64Array, JsString};
 use wasm_bindgen::prelude::*;
 
 const MAX_BINARY_SEARCH_ITERATIONS: usize = 500;
@@ -33,6 +33,16 @@ impl Curve {
 
     pub fn get_y(&self) -> Float64Array {
         Float64Array::from(&self.y[..])
+    }
+
+    pub fn get_csv(&self) -> JsString {
+        let mut output = String::from("timestamps, x, y\n");
+        
+        for i in 0..self.x.len() {
+            output.push_str(&format!("{}, {}, {}\n", self.timestamps[i], self.x[i], self.y[i]))
+        }
+
+        JsString::from(output)
     }
 }
 
