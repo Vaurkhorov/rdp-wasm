@@ -1,4 +1,4 @@
-use js_sys::Float64Array;
+use js_sys::{Float64Array, JsString};
 use wasm_bindgen::prelude::*;
 
 const MAX_BINARY_SEARCH_ITERATIONS: usize = 500;
@@ -33,6 +33,19 @@ impl Curve {
 
     pub fn get_y(&self) -> Float64Array {
         Float64Array::from(&self.y[..])
+    }
+
+    pub fn get_csv(&self) -> JsString {
+        let mut output = String::from("timestamps, x, y\n");
+
+        for i in 0..self.x.len() {
+            output.push_str(&format!(
+                "{}, {}, {}\n",
+                self.timestamps[i], self.x[i], self.y[i]
+            ))
+        }
+
+        JsString::from(output)
     }
 }
 
@@ -126,11 +139,17 @@ pub fn decimate_to_count(
 
     let mut lower_limit = 0.0;
     let mut upper_limit = max_distance;
+    let mut middle: f64;
+    let mut curve = Curve {
+        timestamps: Vec::new(),
+        x: Vec::new(),
+        y: Vec::new(),
+    };
 
     // The loop may hit the limit if two values are somehow removed at the same(or almost the same) tolerance value.
     for _ in 0..MAX_BINARY_SEARCH_ITERATIONS {
-        let middle = (upper_limit + lower_limit) / 2.0;
-        let curve = decimate_by_tolerance(timestamps, x, y, middle)?;
+        middle = (upper_limit + lower_limit) / 2.0;
+        curve = decimate_by_tolerance(timestamps, x, y, middle)?;
 
         match curve.timestamps.len().cmp(&count) {
             std::cmp::Ordering::Equal => return Ok(curve),
@@ -139,7 +158,11 @@ pub fn decimate_to_count(
         }
     }
 
-    Err("Binary Search limit reached.".to_string())
+    Err(format!(
+        "Binary Search limit reached. Count: {} Middle: {}",
+        curve.timestamps.len(),
+        (upper_limit + lower_limit) / 2.0
+    ))
 }
 
 /// perpendicular distance between a point and a line defined by two points
