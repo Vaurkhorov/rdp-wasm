@@ -6,6 +6,12 @@ use wasm_bindgen::prelude::*;
 const MAX_BINARY_SEARCH_ITERATIONS: usize = 500;
 
 #[wasm_bindgen]
+/// Accepts three vector slices, one each for the timestamps, x, and y values respectively.
+/// Returns a decimated curve using the RDP algorithm based on the tolerance provided.
+/// 
+/// # Errors
+/// Returns an error if:
+/// - the number of values in the three vectors don't match.
 pub fn decimate_by_tolerance(
     timestamps: &[f64],
     x: &[f64],
@@ -66,6 +72,36 @@ pub fn decimate_by_tolerance(
 }
 
 #[wasm_bindgen]
+/// Accepts three vector slices, one each for the timestamps, x, and y values respectively.
+/// 
+/// Returns a decimated curve using the RDP algorithm based on the tolerance provided.
+/// 
+/// # Search Limit
+/// The function uses a binary search to find the tolerance value that will result in the desired number of points.
+/// 
+/// The search is limited to 500 iterations(as defined by constant MAX_BINARY_SEARCH_ITERATIONS).
+/// 
+/// If the limit is reached, the function will return an error.
+/// 
+/// # Examples
+/// ```
+/// let timestamps = vec![0.0, 1.0, 2.0, 3.0, 3.5, 4.0];
+/// let x = vec![0.0, 2.0, 67.2, 5.1, 6.0, 6.4];
+/// let y = vec![0.0, 0.7, 1.0, 1.4, 2.2, 3.0];
+///
+/// let expected_curve = Curve::from_vectors(
+///     vec![0.0, 2.0, 4.0],
+///     vec![0.0, 67.2, 6.4],
+///     vec![0.0, 1.0, 3.0],
+/// );
+///
+/// Curve::assert_curve(&decimate_to_count(&timestamps, &x, &y, 3).unwrap(), &expected_curve);
+/// ```
+/// 
+/// # Errors
+/// The function returns an error if:
+/// - the number of values is less than what is required.
+/// - the number of values in the three vectors don't match.
 pub fn decimate_to_count(
     timestamps: &[f64],
     x: &[f64],
@@ -96,7 +132,7 @@ pub fn decimate_to_count(
     let mut middle: f64;
     let mut curve = Curve::new();
 
-    // The loop may hit the limit if two values are somehow removed at the same(or almost the same) tolerance value.
+    // The loop may hit the limit if two values are somehow removed or added at the same(or almost the same) tolerance value.
     for _ in 0..MAX_BINARY_SEARCH_ITERATIONS {
         middle = (upper_limit + lower_limit) / 2.0;
         curve = decimate_by_tolerance(timestamps, x, y, middle)?;
@@ -115,8 +151,9 @@ pub fn decimate_to_count(
     ))
 }
 
-/// perpendicular distance between a point and a line defined by two points
-/// https://math.stackexchange.com/a/2757330
+/// Returns the perpendicular distance between a point and a line defined by two points.
+/// 
+/// Formula reference: https://math.stackexchange.com/a/2757330
 fn perpendicular_distance(x: f64, y: f64, x1: f64, y1: f64, xn: f64, yn: f64) -> f64 {
     let numerator = ((xn - x1) * (y - y1) - (yn - y1) * (x - x1)).abs();
     let denominator = ((xn - x1).powi(2) + (yn - y1).powi(2)).sqrt();
